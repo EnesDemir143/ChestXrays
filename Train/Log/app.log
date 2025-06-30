@@ -1,0 +1,14 @@
+2025-06-30 16:18:47,058 - app_logger - INFO - Starting training for 30 epochs - train_model
+2025-06-30 16:18:47,058 - app_logger - INFO - 
+Epoch 1/30 - train_model
+2025-06-30 16:18:47,058 - app_logger - INFO - --------------- - train_model
+2025-06-30 16:19:02,463 - app_logger - INFO - Batch 10: Loss = 7.2380 - train_model
+2025-06-30 16:19:17,635 - app_logger - INFO - Batch 20: Loss = 5.9035 - train_model
+2025-06-30 16:19:32,088 - app_logger - INFO - Batch 30: Loss = 4.3924 - train_model
+2025-06-30 16:19:46,725 - app_logger - INFO - Batch 40: Loss = 2.9659 - train_model
+2025-06-30 16:20:01,196 - app_logger - INFO - Batch 50: Loss = 1.8791 - train_model
+2025-06-30 16:20:15,662 - app_logger - INFO - Batch 60: Loss = 1.3388 - train_model
+2025-06-30 16:20:30,116 - app_logger - INFO - Batch 70: Loss = 0.9678 - train_model
+2025-06-30 16:20:44,535 - app_logger - INFO - Batch 80: Loss = 0.8494 - train_model
+2025-06-30 16:20:59,044 - app_logger - INFO - Batch 90: Loss = 0.7675 - train_model
+2025-06-30 16:21:13,746 - app_logger - INFO - Batch 100: Loss = 0.7663 - train_model

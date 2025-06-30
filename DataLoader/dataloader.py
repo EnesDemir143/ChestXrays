@@ -19,7 +19,7 @@ class chestXrayDataset(Dataset):
         self.images = glob(os.path.join(self.img_path))
 
         self.transform = transforms.Compose([
-            transforms.Resize((512, 512)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5], std=[0.5])
         ])
@@ -37,7 +37,7 @@ class chestXrayDataset(Dataset):
         img_path = self.images[idx]
         label_str = self.img_labels[idx]
         
-        img = Image.open(img_path).convert("L")
+        img = Image.open(img_path).convert("RGB")
         img_tensor = self.transform(img)
 
         label = self.label_map.get(label_str)
