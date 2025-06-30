@@ -9,6 +9,8 @@ from sklearn.metrics import (
     precision_score,
     recall_score
 )
+import shutil
+
 
 def train_model(model, data_loader, validation_loader, device, loss_fn, optimiser, model_save_path, early_stopping_patience=5, EPOCHS=30):
     model.to(device)
@@ -19,6 +21,9 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
     train_losses = []
     val_losses = []
     accuracies = [] 
+    
+    if os.path.exists("roc_curves"):
+        shutil.rmtree("roc_curves")
 
     os.makedirs("roc_curves", exist_ok=True)  
 
@@ -78,6 +83,7 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
 
         f1 = f1_score(all_labels, all_preds, average='macro')
         acc = accuracy_score(all_labels, all_preds)
+        accuracies.append(acc)
 
         try:
             auc = roc_auc_score(all_labels, all_probs)
@@ -107,26 +113,33 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
             plt.legend()
             plt.savefig("loss_over_epochs.png")
             plt.close()
-            
+
+            plt.figure(figsize=(8, 6))
+            plt.plot(range(1, len(accuracies) + 1), accuracies, label='Validation Accuracy', marker='o', color='green')
+            plt.title('Validation Accuracy over Epochs')
+            plt.xlabel('Epoch')
+            plt.ylabel('Accuracy')
+            plt.grid(True)
+            plt.legend()
+            plt.savefig("accuracy_over_epochs.png")
+            plt.close()
+
         except ValueError:
             app_logger.warning("ROC curve couldn't be plotted due to invalid data.")
         
-
-
         app_logger.info(f"Epoch {epoch+1} completed - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}, F1: {f1:.4f}, Acc: {acc:.4f}, AUC: {auc:.4f}")
         
-
         cm = confusion_matrix(all_labels, all_preds)
         tn, fp, fn, tp = cm.ravel()  
 
-        precision = precision_score(all_labels, all_preds, average='binary')
-        recall = recall_score(all_labels, all_preds, average='binary')
+        precision = precision_score(all_labels, all_preds, average='binary', zero_division=0)
+        recall = recall_score(all_labels, all_preds, average='binary', zero_division=0)
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
         app_logger.info(
         f"Confusion Matrix:\n{cm.tolist()}\n"
         f"TP: {tp}, TN: {tn}, FP: {fp}, FN: {fn} | "
         f"Precision: {precision:.4f}, Recall: {recall:.4f}, Specificity: {specificity:.4f}"
-    )
+        )
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss

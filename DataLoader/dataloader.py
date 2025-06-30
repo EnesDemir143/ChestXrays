@@ -21,7 +21,7 @@ class chestXrayDataset(Dataset):
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.5])
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # RGB normalization
         ])
 
 
@@ -31,7 +31,7 @@ class chestXrayDataset(Dataset):
 
 
     def __len__(self):
-        return len(self.images)
+        return len(self.images[:100])
     
     def __getitem__(self, idx):
         img_path = self.images[idx]
