@@ -16,6 +16,9 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
 
     best_val_loss = float('inf')
     early_stop_counter = 0
+    train_losses = []
+    val_losses = []
+    accuracies = [] 
 
     os.makedirs("roc_curves", exist_ok=True)  
 
@@ -49,6 +52,7 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
                 app_logger.info(f"Batch {batch_count}: Loss = {loss.item():.4f}")
 
         avg_train_loss = total_loss / batch_count
+        train_losses.append(avg_train_loss)
 
         model.eval()
         total_val_loss = 0
@@ -70,6 +74,8 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
                 all_probs.extend(probs.cpu().numpy())
 
         avg_val_loss = total_val_loss / val_batch_count if val_batch_count > 0 else 0
+        val_losses.append(avg_val_loss)
+
         f1 = f1_score(all_labels, all_preds, average='macro')
         acc = accuracy_score(all_labels, all_preds)
 
@@ -90,15 +96,29 @@ def train_model(model, data_loader, validation_loader, device, loss_fn, optimise
             plt.legend()
             plt.savefig(f"roc_curves/epoch_{epoch+1}_roc.png")
             plt.close()
+
+            plt.figure(figsize=(8, 6))
+            plt.plot(range(1, len(train_losses)+1), train_losses, label='Train Loss', marker='o')
+            plt.plot(range(1, len(val_losses)+1), val_losses, label='Validation Loss', marker='o')
+            plt.title('Train vs Validation Loss over Epochs')
+            plt.xlabel('Epoch')
+            plt.ylabel('Loss')
+            plt.grid(True)
+            plt.legend()
+            plt.savefig("loss_over_epochs.png")
+            plt.close()
+            
         except ValueError:
             app_logger.warning("ROC curve couldn't be plotted due to invalid data.")
+        
+
 
         app_logger.info(f"Epoch {epoch+1} completed - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}, F1: {f1:.4f}, Acc: {acc:.4f}, AUC: {auc:.4f}")
         
 
         cm = confusion_matrix(all_labels, all_preds)
         tn, fp, fn, tp = cm.ravel()  
-        
+
         precision = precision_score(all_labels, all_preds, average='binary')
         recall = recall_score(all_labels, all_preds, average='binary')
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
